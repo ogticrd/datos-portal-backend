@@ -10,7 +10,7 @@ env:
   PROJECT_NAME: ckan-backend
   SERVICE_NAME: solr
   GAR_BASE: us-docker.pkg.dev/${{ secrets.GCP_PROJECT }}
-  CKAN_VERSION: 2.9
+  CKAN_VERSION: 2.9.4
   SOLR_VERSION: 6.6.6
   PORT: 8983
 
