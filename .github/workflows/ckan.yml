@@ -8,6 +8,7 @@ on:
 env:
   # Deployment variables
   PROJECT_NAME: ckan-backend
+  SERVICE_NAME: ckan
   GAR_BASE: us-docker.pkg.dev/${{ secrets.GCP_PROJECT }}
   CKAN_VERSION: 2.9
   CKAN_SITE_URL: "http://localhost:5000"
@@ -65,11 +66,11 @@ jobs:
         with:
           context: ./ckan
           target: release
-          tags: ${{ env.GAR_BASE }}/${{env.PROJECT_NAME}}/${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG }}:${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
+          tags: ${{ env.GAR_BASE }}/${{env.PROJECT_NAME}}/${{ env.SERVICE_NAME }}:${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
           build-args: |
             CKAN_SITE_URL=${{ env.CKAN_SITE_URL }}
           push: true
-          cache-from: type=registry,ref=${{ env.GAR_BASE }}/${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG }}:${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
+          cache-from: type=registry,ref=${{ env.GAR_BASE }}/${{ env.SERVICE_NAME }}:${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
           cache-to: type=inline
 
       - name: Image digest
@@ -86,8 +87,8 @@ jobs:
       - id: deploy
         uses: google-github-actions/deploy-cloudrun@main
         with:
-          image: ${{ env.GAR_BASE}}/${{env.PROJECT_NAME}}/${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG }}:${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
-          service: ${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG }}-${{ needs.versioning.outputs.version }}
+          image: ${{ env.GAR_BASE}}/${{env.PROJECT_NAME}}/${{ env.SERVICE_NAME }}:${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
+          service: ${{ env.SERVICE_NAME }}-${{ needs.versioning.outputs.version }}
           credentials: ${{ secrets.GAR_JSON_KEY }}
           region: ${{ secrets.GCP_REGION }}
           flags: |
