@@ -1,0 +1,115 @@
+name: CKAN deployment
+
+on:
+  release:
+    types:
+      - published
+
+env:
+  # Deployment variables
+  PROJECT_NAME: ckan-backend
+  GAR_BASE: us-docker.pkg.dev/${{ secrets.GCP_PROJECT }}
+  CKAN_VERSION: 2.9
+  CKAN_SITE_URL: "http://localhost:5000"
+  CKAN_MAX_UPLOAD_SIZE_MB: 10MB
+
+jobs:
+  versioning:
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.set.outputs.version }}
+    steps:
+      - name: Getting API Version
+        id: get
+        uses: actions/github-script@v4
+        with:
+          result-encoding: string
+          script: |
+            return context.payload.release.tag_name.substring(0,2)
+      - name: Setting API Version
+        id: set
+        run: echo "::set-output name=version::${{ steps.get.outputs.result }}"
+
+  build:
+    needs: ['versioning']
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v3.x
+
+      - name: Download CKAN ${{ env.CKAN_VERSION }}
+        uses: actions/checkout@v2
+        with:
+          repository: ckan/ckan
+          token: ${{ secrets.ACTIONS_PAT }}
+          ref: ${{ env.CKAN_VERSION }}
+
+      ### Build the Docker image and Push it
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: network=host
+
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: |
+            /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}-${{ env.GITHUB_SHA_SHORT }}
+
+      - name: Login to GAR
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.GAR_BASE}}
+          username: _json_key
+          password: ${{ secrets.GAR_JSON_KEY }}
+
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          target: release
+          tags: ${{ env.GAR_BASE }}/${{env.PROJECT_NAME}}/${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG }}:${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
+          build-args: |
+            CKAN_SITE_URL=${{ env.CKAN_SITE_URL }}
+          push: true
+          cache-from: type=registry,ref=${{ env.GAR_BASE }}/${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG }}:${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
+          cache-to: type=inline
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
+
+  deploy:
+    needs: ["build", "versioning"]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v3.x
+
+      - id: deploy
+        uses: google-github-actions/deploy-cloudrun@main
+        with:
+          image: ${{ env.GAR_BASE}}/${{env.PROJECT_NAME}}/${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG }}:${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
+          service: ${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG }}-${{ needs.versioning.outputs.version }}
+          credentials: ${{ secrets.GAR_JSON_KEY }}
+          region: ${{ secrets.GCP_REGION }}
+          flags: |
+            --vpc-connector=projects/${{ secrets.GCP_PROJECT }}/locations/${{ secrets.GCP_REGION }}/connectors/${{ secrets.GCP_REGION }}-default
+          env_vars: |
+            CKAN_SQLALCHEMY_URL=postgresql://ckan:${{ secrets.POSTGRES_PASSWORD }}@${{ secrets.POSTGRES_HOST }}/ckan,
+            CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${{ secrets.POSTGRES_PASSWORD }}@${{ secrets.POSTGRES_HOST }}/datastore,
+            CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@${{ secrets.POSTGRES_HOST }}/datastore,
+            CKAN_SOLR_URL=http://solr:8983/solr/ckan,
+            CKAN_REDIS_URL=redis://redis:6379/1,
+            CKAN_DATAPUSHER_URL=http://datapusher:8800,
+            CKAN_SITE_URL=${CKAN_SITE_URL},
+            CKAN_MAX_UPLOAD_SIZE_MB=${CKAN_MAX_UPLOAD_SIZE_MB},
+            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }},
+            DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+
+      # - name: Testing Service with curl
+      #   run: curl "${{ steps.deploy.outputs.url }}"

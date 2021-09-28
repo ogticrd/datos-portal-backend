@@ -1,0 +1,1 @@
+FROM keitaro/ckan-datapusher
