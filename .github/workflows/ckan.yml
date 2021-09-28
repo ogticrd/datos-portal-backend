@@ -93,8 +93,8 @@ jobs:
           flags: |
             --vpc-connector=projects/${{ secrets.GCP_PROJECT }}/locations/${{ secrets.GCP_REGION }}/connectors/${{ secrets.GCP_REGION }}-default
           env_vars: |
-            CKAN_SQLALCHEMY_URL=postgresql://ckan:${{ secrets.POSTGRES_PASSWORD }}@${{ secrets.POSTGRES_HOST }}/ckan,
-            CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${{ secrets.POSTGRES_PASSWORD }}@${{ secrets.POSTGRES_HOST }}/datastore,
+            CKAN_SQLALCHEMY_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@${{ secrets.POSTGRES_HOST }}/ckan,
+            CKAN_DATASTORE_WRITE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@${{ secrets.POSTGRES_HOST }}/datastore,
             CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@${{ secrets.POSTGRES_HOST }}/datastore,
             CKAN_SOLR_URL=http://solr:8983/solr/ckan,
             CKAN_REDIS_URL=redis://redis:6379/1,
