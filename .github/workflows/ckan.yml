@@ -11,7 +11,6 @@ env:
   SERVICE_NAME: ckan
   GAR_BASE: us-docker.pkg.dev/${{ secrets.GCP_PROJECT }}
   CKAN_VERSION: 2.9
-  CKAN_SITE_URL: "http://localhost:5000"
   CKAN_MAX_UPLOAD_SIZE_MB: 10MB
 
 jobs:
@@ -96,14 +95,14 @@ jobs:
           env_vars: |
             CKAN_SQLALCHEMY_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@${{ secrets.POSTGRES_HOST }}/ckan,
             CKAN_DATASTORE_WRITE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@${{ secrets.POSTGRES_HOST }}/datastore,
-            CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@${{ secrets.POSTGRES_HOST }}/datastore,
-            CKAN_SOLR_URL=http://solr:8983/solr/ckan,
-            CKAN_REDIS_URL=redis://redis:6379/1,
-            CKAN_DATAPUSHER_URL=http://datapusher:8800,
-            CKAN_SITE_URL=${CKAN_SITE_URL},
-            CKAN_MAX_UPLOAD_SIZE_MB=${CKAN_MAX_UPLOAD_SIZE_MB},
+            CKAN_DATASTORE_READ_URL=postgresql://${{ secrets.DATASTORE_USER }}:${{ secrets.DATASTORE_READONLY_PASSWORD}}@${{ secrets.POSTGRES_HOST }}/datastore,
+            CKAN_SOLR_URL=${{ secrets.CKAN_SOLR_URL }},
+          #  CKAN_REDIS_URL=redis://redis:6379/1,
+            CKAN_DATAPUSHER_URL=${{ secrets.CKAN_DATAPUSHER_URL }},
+            CKAN_SITE_URL=${{ secrets.CKAN_SITE_URL }},
+            CKAN_MAX_UPLOAD_SIZE_MB=${{ env.CKAN_MAX_UPLOAD_SIZE_MB }},
             POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }},
-            DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+            DS_RO_PASS=${{ secrets.DATASTORE_READONLY_PASSWORD }}
 
       # - name: Testing Service with curl
       #   run: curl "${{ steps.deploy.outputs.url }}"
