@@ -51,7 +51,7 @@ jobs:
         with:
           path: |
             /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
+          key: ${{ runner.os }}-buildx-${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}-${{ env.SERVICE_NAME }}
 
 
       - name: Login to GAR
