@@ -28,10 +28,9 @@ RUN apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/v3.13/m
         libffi-dev \
         openssl-dev \
         rust \
-        cargo
-
-# Install node and npm for ckanext-blob-storage
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && apt-get install nodejs && npm version
+        cargo \
+        nodejs \
+        nodejs-npm
 
 # Fetch and build the custom CKAN extensions
 RUN pip wheel --wheel-dir=/wheels git+${HARVEST_GIT_URL}@${HARVEST_GIT_BRANCH}#egg=ckanext-harvest
