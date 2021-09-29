@@ -22,7 +22,7 @@ USER root
 # Make sure we install python 3.8, cause CKAN is not compatible with 3.9
 RUN apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/v3.13/main \
         python3-dev=3.8.10-r0 && \
-    apk add --no-cache \
+    apk add --update --no-cache \
         gcc \
         g++ \
         libffi-dev \
