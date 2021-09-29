@@ -25,6 +25,11 @@ ENV GIFTLESS_CONFIG_TRANSFER_ADAPTERS_BASIC_OPTIONS_STORAGE_OPTIONS_ACCOUNT_KEY_
 
 COPY giftless.yaml ${GIFTLESS_CONFIG_FILE}
 
+RUN DEBIAN_FRONTEND=noninteractive apt-get update \
+    && apt-get install -y gettext-base \
+    && apt-get clean \
+    && apt -y autoremove
+
 RUN envsubst ${GCP_PROJECT} ${GCP_BUCKET_NAME} ${GCP_BUCKET_KEY} ${CKAN_SITE_URL} < "/etc/giftless.yaml" > "/etc/giftless.yaml"
 
 CMD ["-s", "127.0.0.1:${PORT}", "-M", "-T", "--threads", "2", "-p", "2", \
