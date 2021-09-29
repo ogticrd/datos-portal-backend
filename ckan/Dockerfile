@@ -13,6 +13,9 @@ ENV BLOB_GIT_BRANCH=v0.8.0
 ENV AUTHZ_GIT_URL=https://github.com/datopian/ckanext-authz-service
 ENV AUTHZ_GIT_BRANCH=v0.1.5
 
+ENV ASSET_GIT_URL=https://github.com/datopian/ckanext-asset-storage
+ENV ASSET_GIT_BRANCH=v0.1.6
+
 # Switch to the root user
 USER root
 
@@ -43,6 +46,10 @@ RUN pip wheel --wheel-dir=/wheels git+${AUTHZ_GIT_URL}@${AUTHZ_GIT_BRANCH}#egg=c
 RUN pip wheel --wheel-dir=/wheels -r https://raw.githubusercontent.com/datopian/ckanext-authz-service/${AUTHZ_GIT_BRANCH}/requirements.py3.txt
 RUN curl -o /wheels/authz_service.txt https://raw.githubusercontent.com/datopian/ckanext-authz-service/${AUTHZ_GIT_BRANCH}/requirements.py3.txt
 
+RUN pip wheel --wheel-dir=/wheels git+${ASSET_GIT_URL}@${ASSET_GIT_BRANCH}#egg=ckanext-asset-storage
+RUN pip wheel --wheel-dir=/wheels -r https://raw.githubusercontent.com/datopian/ckanext-asset-storage/${ASSET_GIT_BRANCH}/requirements.py3.txt
+RUN curl -o /wheels/asset_storage.txt https://raw.githubusercontent.com/datopian/ckanext-asset-storage/${ASSET_GIT_BRANCH}/requirements.py3.txt
+
 USER ckan
 
 ############
@@ -53,7 +60,8 @@ FROM ghcr.io/keitaroinc/ckan:2.9.4 as release
 LABEL maintainer="Keitaro Inc <info@keitaro.com>"
 
 # Add the custom extensions to the plugins list
-ENV CKAN__PLUGINS envvars image_view text_view recline_view datastore datapusher harvest ckan_harvester blob_storage authz_service
+ENV CKAN__PLUGINS envvars image_view text_view recline_view datastore datapusher \
+    harvest ckan_harvester blob_storage authz_service asset_storage
 
 # Switch to the root user
 USER root
@@ -67,8 +75,11 @@ RUN pip install --no-index --find-links=/srv/app/ext_wheels ckanext-harvest && \
     pip install --no-index --find-links=/srv/app/ext_wheels -r /srv/app/ext_wheels/blob_storage.txt && \
     pip install --no-index --find-links=/srv/app/ext_wheels ckanext-authz-service && \
     pip install --no-index --find-links=/srv/app/ext_wheels -r /srv/app/ext_wheels/authz_service.txt && \
+    pip install --no-index --find-links=/srv/app/ext_wheels ckanext-asset-storage && \
+    pip install --no-index --find-links=/srv/app/ext_wheels -r /srv/app/ext_wheels/asset_storage.txt && \
     # Configure plugins
     ckan config-tool "${APP_DIR}/production.ini" "ckan.plugins = ${CKAN__PLUGINS}" && \
+    ckan config-tool "${APP_DIR}/production.ini" "ckanext.asset_storage.backend_type = google_cloud" && \
     chown -R ckan:ckan /srv/app
 
 # Remove wheels
