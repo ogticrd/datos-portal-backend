@@ -58,10 +58,6 @@ ENV CKAN__PLUGINS envvars image_view text_view recline_view datastore datapusher
 # Switch to the root user
 USER root
 
-# Install additional dependencies
-RUN apk add --no-cache \
-        git-core
-
 COPY --from=extbuild /wheels /srv/app/ext_wheels
 
 # Install and enable the custom extensions

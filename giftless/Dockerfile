@@ -25,16 +25,6 @@ ENV GIFTLESS_CONFIG_TRANSFER_ADAPTERS_BASIC_OPTIONS_STORAGE_OPTIONS_ACCOUNT_KEY_
 
 COPY giftless.yaml ${GIFTLESS_CONFIG_FILE}
 
-# Install envsubst
-ENV BUILD_DEPS="gettext"  \
-    RUNTIME_DEPS="libintl"
-
-RUN set -x && \
-    apk add --update $RUNTIME_DEPS && \
-    apk add --virtual build_deps $BUILD_DEPS &&  \
-    cp /usr/bin/envsubst /usr/local/bin/envsubst && \
-    apk del build_deps
-
 RUN envsubst ${GCP_PROJECT} ${GCP_BUCKET_NAME} ${GCP_BUCKET_KEY} ${CKAN_SITE_URL} < "/etc/giftless.yaml" > "/etc/giftless.yaml"
 
 CMD ["-s", "127.0.0.1:${PORT}", "-M", "-T", "--threads", "2", "-p", "2", \
