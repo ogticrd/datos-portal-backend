@@ -32,7 +32,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && apt-get clean \
     && apt -y autoremove
 
-RUN envsubst ${GCP_PROJECT} ${GCP_BUCKET_NAME} ${GCP_BUCKET_KEY} ${CKAN_SITE_URL} < "/etc/giftless.yaml" > "/etc/giftless.yaml"
+RUN envsubst "${GCP_PROJECT} ${GCP_BUCKET_NAME} ${GCP_BUCKET_KEY} ${CKAN_SITE_URL}" < ${GIFTLESS_CONFIG_FILE}
 
 USER giftless
 
