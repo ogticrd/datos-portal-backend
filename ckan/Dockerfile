@@ -7,6 +7,12 @@ FROM ghcr.io/keitaroinc/ckan:2.9.4 as extbuild
 ENV HARVEST_GIT_URL=https://github.com/ckan/ckanext-harvest
 ENV HARVEST_GIT_BRANCH=v1.3.1
 
+ENV BLOB_GIT_URL=https://github.com/datopian/ckanext-blob-storage
+ENV BLOB_GIT_BRANCH=v0.8.0
+
+ENV AUTHZ_GIT_URL=https://github.com/datopian/ckanext-authz-service
+ENV AUTHZ_GIT_BRANCH=v0.1.5
+
 # Switch to the root user
 USER root
 
@@ -21,10 +27,21 @@ RUN apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/v3.13/m
         rust \
         cargo
 
+# Install node and npm for ckanext-blob-storage
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && apt-get install nodejs && npm version
+
 # Fetch and build the custom CKAN extensions
 RUN pip wheel --wheel-dir=/wheels git+${HARVEST_GIT_URL}@${HARVEST_GIT_BRANCH}#egg=ckanext-harvest
 RUN pip wheel --wheel-dir=/wheels -r https://raw.githubusercontent.com/ckan/ckanext-harvest/${HARVEST_GIT_BRANCH}/pip-requirements.txt
 RUN curl -o /wheels/harvest.txt https://raw.githubusercontent.com/ckan/ckanext-harvest/${HARVEST_GIT_BRANCH}/pip-requirements.txt
+
+RUN pip wheel --wheel-dir=/wheels git+${BLOB_GIT_URL}@${BLOB_GIT_BRANCH}#egg=ckanext-blob-storage
+RUN pip wheel --wheel-dir=/wheels -r https://raw.githubusercontent.com/datopian/ckanext-blob-storage/${BLOB_GIT_BRANCH}/requirements.py3.txt
+RUN curl -o /wheels/blob_storage.txt https://raw.githubusercontent.com/ckan/ckanext-harvest/${BLOB_GIT_BRANCH}/pip-requirements.txt
+
+RUN pip wheel --wheel-dir=/wheels git+${AUTHZ_GIT_URL}@${AUTHZ_GIT_BRANCH}#egg=ckanext-authz-service
+RUN pip wheel --wheel-dir=/wheels -r https://raw.githubusercontent.com/datopian/ckanext-authz-service/${AUTHZ_GIT_BRANCH}/requirements.py3.txt
+RUN curl -o /wheels/authz_service.txt https://raw.githubusercontent.com/datopian/ckanext-authz-service/${AUTHZ_GIT_BRANCH}/requirements.py3.txt
 
 USER ckan
 
@@ -36,7 +53,7 @@ FROM ghcr.io/keitaroinc/ckan:2.9.4 as release
 LABEL maintainer="Keitaro Inc <info@keitaro.com>"
 
 # Add the custom extensions to the plugins list
-ENV CKAN__PLUGINS envvars image_view text_view recline_view datastore datapusher harvest ckan_harvester
+ENV CKAN__PLUGINS envvars image_view text_view recline_view datastore datapusher harvest ckan_harvester blob_storage authz_service
 
 # Switch to the root user
 USER root
@@ -46,6 +63,10 @@ COPY --from=extbuild /wheels /srv/app/ext_wheels
 # Install and enable the custom extensions
 RUN pip install --no-index --find-links=/srv/app/ext_wheels ckanext-harvest && \
     pip install --no-index --find-links=/srv/app/ext_wheels -r /srv/app/ext_wheels/harvest.txt && \
+    pip install --no-index --find-links=/srv/app/ext_wheels ckanext-blob-storage && \
+    pip install --no-index --find-links=/srv/app/ext_wheels -r /srv/app/ext_wheels/blob_storage.txt && \
+    pip install --no-index --find-links=/srv/app/ext_wheels ckanext-authz-service && \
+    pip install --no-index --find-links=/srv/app/ext_wheels -r /srv/app/ext_wheels/authz_service.txt && \
     # Configure plugins
     ckan config-tool "${APP_DIR}/production.ini" "ckan.plugins = ${CKAN__PLUGINS}" && \
     chown -R ckan:ckan /srv/app
