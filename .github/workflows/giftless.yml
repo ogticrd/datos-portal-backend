@@ -63,6 +63,8 @@ jobs:
         shell: bash
         env:
           GCP_BUCKET_KEY: ${{ secrets.GCP_BUCKET_KEY }}
+        
+      - run: cat $GITHUB_WORKSPACE/giftless/google_credentials.json
 
       - name: Build and push
         id: docker_build
