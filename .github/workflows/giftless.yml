@@ -4,6 +4,9 @@ on:
   release:
     types:
       - published
+  push:
+    branches:
+      - master
 
 env:
   # Deployment variables
@@ -16,11 +19,11 @@ env:
 jobs:
   versioning:
     runs-on: ubuntu-latest
-
     outputs:
       version: ${{ steps.set.outputs.version }}
     steps:
       - name: Getting API Version
+        if: github.event_name == 'release'
         id: get
         uses: actions/github-script@v4
         with:
@@ -28,6 +31,7 @@ jobs:
           script: |
             return context.payload.release.tag_name.substring(0,2)
       - name: Setting API Version
+        if: github.event_name == 'release'
         id: set
         run: echo "::set-output name=version::${{ steps.get.outputs.result }}"
 
@@ -99,7 +103,7 @@ jobs:
         uses: google-github-actions/deploy-cloudrun@main
         with:
           image: ${{ env.GAR_BASE}}/${{env.PROJECT_NAME}}/${{ env.SERVICE_NAME }}:${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
-          service: ${{ env.SERVICE_NAME }}-${{ needs.versioning.outputs.version }}
+          service: ${{ env.SERVICE_NAME }}-${{ needs.versioning.outputs.version || env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
           credentials: ${{ secrets.GAR_JSON_KEY }}
           region: ${{ secrets.GCP_REGION }}
           flags: |
