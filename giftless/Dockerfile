@@ -23,6 +23,7 @@ ENV GIFTLESS_CONFIG_TRANSFER_ADAPTERS_BASIC_OPTIONS_STORAGE_OPTIONS_ACCOUNT_KEY 
 
 COPY giftless.yaml ${GIFTLESS_CONFIG_FILE}
 COPY google_credentials.json ${GOOGLE_CLOUD_CREDENTIALS}
+RUN cat ${GOOGLE_CLOUD_CREDENTIALS}
 
 CMD ["-s", "127.0.0.1:${PORT}", "-M", "-T", "--threads", "2", "-p", "2", \
      "--manage-script-name", "--callable", "app"]
