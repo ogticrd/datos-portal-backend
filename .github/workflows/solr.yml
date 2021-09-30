@@ -7,6 +7,9 @@ on:
   push:
     branches:
       - master
+    paths:
+      - '**/solr/**'
+      - '.github/workflows/solr.yml'
 
 env:
   # Deployment variables

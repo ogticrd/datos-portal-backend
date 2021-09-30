@@ -7,6 +7,9 @@ on:
   push:
     branches:
       - master
+    paths:
+      - '**/datapusher/**'
+      - '.github/workflows/datapusher.yml'
 
 env:
   # Deployment variables

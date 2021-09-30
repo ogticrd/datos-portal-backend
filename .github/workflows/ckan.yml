@@ -7,6 +7,9 @@ on:
   push:
     branches:
       - master
+    paths:
+      - '**/ckan/**'
+      - '.github/workflows/ckan.yml'
 
 env:
   # Deployment variables
