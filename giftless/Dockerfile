@@ -24,16 +24,5 @@ ENV GIFTLESS_CONFIG_TRANSFER_ADAPTERS_BASIC_OPTIONS_STORAGE_OPTIONS_ACCOUNT_KEY 
 COPY giftless.yaml ${GIFTLESS_CONFIG_FILE}
 COPY google_credentials.json ${GOOGLE_CLOUD_CREDENTIALS}
 
-USER root
-
-RUN DEBIAN_FRONTEND=noninteractive apt-get update \
-    && apt-get install -y gettext-base \
-    && apt-get clean \
-    && apt -y autoremove
-
-RUN envsubst "${GCP_PROJECT} ${GCP_BUCKET_NAME} ${GOOGLE_CLOUD_CREDENTIALS} ${CKAN_SITE_URL}" < ${GIFTLESS_CONFIG_FILE}
-
-USER giftless
-
 CMD ["-s", "127.0.0.1:${PORT}", "-M", "-T", "--threads", "2", "-p", "2", \
      "--manage-script-name", "--callable", "app"]
