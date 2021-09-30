@@ -60,15 +60,23 @@ jobs:
           username: _json_key
           password: ${{ secrets.GAR_JSON_KEY }}
 
+      - run: 'echo "$GCP_BUCKET_KEY" > ./{{ env.SERVICE_NAME }}/google_credentials.json'
+        shell: bash
+        env:
+          GCP_BUCKET_KEY: ${{secrets.GCP_BUCKET_KEY}}
+
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
         with:
-          context: ./ckan
+          context: ./{{ env.SERVICE_NAME }}
           target: release
           tags: ${{ env.GAR_BASE }}/${{env.PROJECT_NAME}}/${{ env.SERVICE_NAME }}:${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
           build-args: |
             CKAN_SITE_URL=${{ env.CKAN_SITE_URL }}
+            GCP_PROJECT=${{ secrets.GCP_PROJECT }}
+            GCP_BUCKET_NAME=${{ secrets.GCP_BUCKET_NAME }}
+            GCP_BUCKET_KEY=${{ secrets.GCP_BUCKET_KEY }}
           push: true
           cache-from: type=registry,ref=${{ env.GAR_BASE }}/${{ env.SERVICE_NAME }}:${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
           cache-to: type=inline
@@ -98,12 +106,27 @@ jobs:
             CKAN_DATASTORE_WRITE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@${{ secrets.POSTGRES_HOST }}/datastore,
             CKAN_DATASTORE_READ_URL=postgresql://${{ secrets.DATASTORE_USER }}:${{ secrets.DATASTORE_READONLY_PASSWORD}}@${{ secrets.POSTGRES_HOST }}/datastore,
             CKAN_SOLR_URL=${{ secrets.CKAN_SOLR_URL }},
-            CKAN_REDIS_URL=redis://${{ secrets.REDIS_HOST }}:6379/1,
+            CKAN_REDIS_URL=redis://${{ secrets.REDIS_HOST }}:6379/ckan,
             CKAN_DATAPUSHER_URL=${{ secrets.CKAN_DATAPUSHER_URL }},
             CKAN_SITE_URL=${{ secrets.CKAN_SITE_URL }},
             CKAN_MAX_UPLOAD_SIZE_MB=${{ env.CKAN_MAX_UPLOAD_SIZE_MB }},
             POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }},
-            DS_RO_PASS=${{ secrets.DATASTORE_READONLY_PASSWORD }}
+            DS_RO_PASS=${{ secrets.DATASTORE_READONLY_PASSWORD }},
+            CKAN_SYSADMIN_NAME=${{ secrets.CKAN_SYSADMIN_NAME }},
+            CKAN_SYSADMIN_PASSWORD=${{ secrets.CKAN_SYSADMIN_PASSWORD }},
+            CKAN_SYSADMIN_EMAIL=${{ secrets.CKAN_SYSADMIN_EMAIL }},
+            CKAN_SMTP_SERVER=${{ secrets.CKAN_SMTP_SERVER }},
+            CKAN_SMTP_STARTTLS=${{ secrets.CKAN_SMTP_STARTTLS }},
+            CKAN_SMTP_USER=${{ secrets.CKAN_SMTP_USER }},
+            CKAN_SMTP_PASSWORD=${{ secrets.CKAN_SMTP_PASSWORD }},
+            CKAN_SMTP_MAIL_FROM=${{ secrets.CKAN_SMTP_MAIL_FROM }},
+            CKAN__HARVEST__MQ__TYPE=redis,
+            CKAN__HARVEST__MQ__HOSTNAME=${{ secrets.REDIS_HOST }},
+            CKAN__HARVEST__MQ__PORT=6379,
+            CKAN__HARVEST__MQ__REDIS_DB=ckan,
+            CKANEXT__BLOB_STORAGE__STORAGE_SERVICE_URL=${{ secrets.CKAN_STORAGE_SERVICE_URL }},
+            CKANEXT__ASSET_STORAGE__BACKEND_TYPE=google_cloud,
+            CKANEXT__ASSET_STORAGE__BACKEND_OPTIONS=${{ secrets.STORAGE_BACKEND_OPTIONS }}
 
       # - name: Testing Service with curl
       #   run: curl "${{ steps.deploy.outputs.url }}"

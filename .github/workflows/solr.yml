@@ -65,7 +65,7 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v2
         with:
-          context: ./solr
+          context: ./{{ env.SERVICE_NAME }}
           tags: ${{ env.GAR_BASE }}/${{env.PROJECT_NAME}}/${{ env.SERVICE_NAME }}:${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
           build-args: |
             CKAN_VERSION=${{ env.CKAN_VERSION }}
