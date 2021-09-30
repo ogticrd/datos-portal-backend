@@ -59,7 +59,7 @@ jobs:
           username: _json_key
           password: ${{ secrets.GAR_JSON_KEY }}
 
-      - run: 'echo "$GCP_BUCKET_KEY" > ./{{ env.SERVICE_NAME }}/google_credentials.json'
+      - run: 'echo "$GCP_BUCKET_KEY" > ./giftless/google_credentials.json'
         shell: bash
         env:
           GCP_BUCKET_KEY: ${{secrets.GCP_BUCKET_KEY}}
@@ -70,6 +70,8 @@ jobs:
         with:
           context: ./giftless
           tags: ${{ env.GAR_BASE }}/${{env.PROJECT_NAME}}/${{ env.SERVICE_NAME }}:${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
+          secret-files: |
+            "google_credentials=./google_credentials.json"
           build-args: |
             PORT=${{ env.PORT }}
             CKAN_SITE_URL=${{ env.CKAN_SITE_URL }}
