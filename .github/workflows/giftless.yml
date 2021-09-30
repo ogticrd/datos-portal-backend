@@ -68,7 +68,6 @@ jobs:
 
       - run: |
           printf "%s" "${{ secrets.GCP_BUCKET_KEY }}" > ./giftless/google_credentials.json
-          cat ./giftless/google_credentials.json
 
       - name: Build and push
         id: docker_build
