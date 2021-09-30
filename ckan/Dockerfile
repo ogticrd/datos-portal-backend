@@ -45,7 +45,7 @@ RUN pip wheel --wheel-dir=/wheels git+${ASSET_GIT_URL}@${ASSET_GIT_BRANCH}#egg=c
 RUN pip wheel --wheel-dir=/wheels -r https://raw.githubusercontent.com/datopian/ckanext-asset-storage/${ASSET_GIT_BRANCH}/requirements.py3.txt
 RUN curl -o /wheels/asset_storage.txt https://raw.githubusercontent.com/datopian/ckanext-asset-storage/${ASSET_GIT_BRANCH}/requirements.py3.txt
 
-RUN pip wheel --wheel-dir=/wheels git+${BLOB_GIT_URL}@${BLOB_GIT_BRANCH}#egg=ckanext-blob-storage
+# RUN pip wheel --wheel-dir=/wheels git+${BLOB_GIT_URL}@${BLOB_GIT_BRANCH}#egg=ckanext-blob-storage
 RUN pip wheel --wheel-dir=/wheels -r https://raw.githubusercontent.com/datopian/ckanext-blob-storage/${BLOB_GIT_BRANCH}/requirements.py3.txt
 RUN curl -o /wheels/blob_storage.txt https://raw.githubusercontent.com/ckan/ckanext-harvest/${BLOB_GIT_BRANCH}/pip-requirements.txt
 
@@ -74,7 +74,8 @@ RUN pip install --no-index --find-links=/srv/app/ext_wheels ckanext-harvest && \
     pip install --no-index --find-links=/srv/app/ext_wheels -r /srv/app/ext_wheels/authz_service.txt && \
     pip install --no-index --find-links=/srv/app/ext_wheels ckanext-asset-storage && \
     pip install --no-index --find-links=/srv/app/ext_wheels -r /srv/app/ext_wheels/asset_storage.txt && \
-    pip install --no-index --find-links=/srv/app/ext_wheels ckanext-blob-storage && \
+    # pip install --no-index --find-links=/srv/app/ext_wheels ckanext-blob-storage && \
+    pip install --find-links=/srv/app/ext_wheels ckanext-blob-storage && \
     pip install --no-index --find-links=/srv/app/ext_wheels -r /srv/app/ext_wheels/blob_storage.txt && \
     # Configure plugins
     ckan config-tool "${APP_DIR}/production.ini" "ckan.plugins = ${CKAN__PLUGINS}" && \
