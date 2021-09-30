@@ -13,7 +13,7 @@ TRANSFER_ADAPTERS:
       storage_options:
         project_name: ${GCP_PROJECT}
         bucket_name: ${GCP_BUCKET_NAME}
-        account_key: /etc/google_credentials.json
+        account_key_file: ${GOOGLE_CLOUD_CREDENTIALS}
 
 # Enable CORS requests from localhost:5000
 MIDDLEWARE:
