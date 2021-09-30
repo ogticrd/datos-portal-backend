@@ -60,7 +60,8 @@ LABEL maintainer="Keitaro Inc <info@keitaro.com>"
 
 # Add the custom extensions to the plugins list
 ENV CKAN__PLUGINS envvars image_view text_view recline_view datastore datapusher \
-    harvest ckan_harvester blob_storage authz_service asset_storage
+    harvest ckan_harvester authz_service asset_storage 
+    # blob_storage
 
 # Switch to the root user
 USER root
