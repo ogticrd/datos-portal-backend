@@ -125,8 +125,9 @@ jobs:
             CKAN__HARVEST__MQ__PORT=6379,
             CKAN__HARVEST__MQ__REDIS_DB=ckan,
             CKANEXT__BLOB_STORAGE__STORAGE_SERVICE_URL=${{ secrets.CKAN_STORAGE_SERVICE_URL }},
-            CKANEXT__ASSET_STORAGE__BACKEND_TYPE=google_cloud,
-            CKANEXT__ASSET_STORAGE__BACKEND_OPTIONS=${{ secrets.STORAGE_BACKEND_OPTIONS }}
+            CKANEXT__ASSET_STORAGE__BACKEND_TYPE=google_cloud
+
+      # CKANEXT__ASSET_STORAGE__BACKEND_OPTIONS=${{ secrets.STORAGE_BACKEND_OPTIONS }}
 
       # - name: Testing Service with curl
       #   run: curl "${{ steps.deploy.outputs.url }}"
