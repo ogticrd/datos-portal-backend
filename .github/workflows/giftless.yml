@@ -59,6 +59,11 @@ jobs:
           username: _json_key
           password: ${{ secrets.GAR_JSON_KEY }}
 
+      - run: 'echo "$SSH_KEY" > ./giftless/google_credentials.json'
+        shell: bash
+        env:
+          SSH_KEY: ${{secrets.GCP_BUCKET_KEY}}
+
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2

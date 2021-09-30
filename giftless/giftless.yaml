@@ -13,7 +13,7 @@ TRANSFER_ADAPTERS:
       storage_options:
         project_name: ${GCP_PROJECT}
         bucket_name: ${GCP_BUCKET_NAME}
-        account_key_base64: ${GCP_BUCKET_KEY}
+        account_key: ${GOOGLE_CLOUD_CREDENTIALS}
 
 # Enable CORS requests from localhost:5000
 MIDDLEWARE:
