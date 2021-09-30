@@ -26,8 +26,8 @@ COPY giftless.yaml ${GIFTLESS_CONFIG_FILE}
 USER root
 
 RUN --mount=type=secret,id=credentials,target=/etc/google_credentials.json \
-  cat /etc/google_credentials.json \
-  chown giftless /etc/google_credentials.json
+  cat /etc/google_credentials.json
+RUN  chown -R giftless /etc/google_credentials.json
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && apt-get install -y gettext-base \
