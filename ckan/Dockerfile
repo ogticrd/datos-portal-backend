@@ -63,6 +63,17 @@ ENV CKAN__PLUGINS envvars image_view text_view recline_view datastore datapusher
     harvest ckan_harvester authz_service asset_storage 
     # blob_storage
 
+ARG GOOGLE_CLOUD_CREDENTIALS=/etc/google_credentials.json
+ENV GOOGLE_CLOUD_CREDENTIALS ${GOOGLE_CLOUD_CREDENTIALS}
+
+ARG GCP_PROJECT
+ENV GCP_PROJECT ${GCP_PROJECT}
+
+ARG GCP_BUCKET_NAME
+ENV GCP_BUCKET_NAME ${GCP_BUCKET_NAME}
+
+COPY google_credentials.json ${GOOGLE_CLOUD_CREDENTIALS}
+
 # Switch to the root user
 USER root
 
@@ -79,6 +90,8 @@ RUN pip install --no-index --find-links=/srv/app/ext_wheels ckanext-harvest && \
     # pip install --no-index --find-links=/srv/app/ext_wheels -r /srv/app/ext_wheels/blob_storage.txt && \
     # Configure plugins
     ckan config-tool "${APP_DIR}/production.ini" "ckan.plugins = ${CKAN__PLUGINS}" && \
+    ckan config-tool "${APP_DIR}/production.ini" "ckanext.asset_storage.backend_type = google_cloud" && \
+    ckan config-tool "${APP_DIR}/production.ini" "ckanext.asset_storage.backend_type = {\"project_name\":\"${GCP_PROJECT}\",\"bucket_name\":\"${GCP_BUCKET_NAME}\",\"account_key_file\":\"${GOOGLE_CLOUD_CREDENTIALS}\"}" && \
     chown -R ckan:ckan /srv/app
 
 # Remove wheels

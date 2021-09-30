@@ -67,10 +67,8 @@ jobs:
           username: _json_key
           password: ${{ secrets.GAR_JSON_KEY }}
 
-      - run: 'echo "$GCP_BUCKET_KEY" > ./{{ env.SERVICE_NAME }}/google_credentials.json'
-        shell: bash
-        env:
-          GCP_BUCKET_KEY: ${{secrets.GCP_BUCKET_KEY}}
+      - run: |
+          printf "%s" "${{ secrets.GCP_BUCKET_KEY }}" > ./ckan/google_credentials.json
 
       - name: Build and push
         id: docker_build
@@ -83,7 +81,6 @@ jobs:
             CKAN_SITE_URL=${{ env.CKAN_SITE_URL }}
             GCP_PROJECT=${{ secrets.GCP_PROJECT }}
             GCP_BUCKET_NAME=${{ secrets.GCP_BUCKET_NAME }}
-            GCP_BUCKET_KEY=${{ secrets.GCP_BUCKET_KEY }}
           push: true
           cache-from: type=registry,ref=${{ env.GAR_BASE }}/${{ env.SERVICE_NAME }}:${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
           cache-to: type=inline
@@ -133,8 +130,6 @@ jobs:
             CKAN__HARVEST__MQ__REDIS_DB=ckan,
             CKANEXT__BLOB_STORAGE__STORAGE_SERVICE_URL=${{ secrets.CKAN_STORAGE_SERVICE_URL }},
             CKANEXT__ASSET_STORAGE__BACKEND_TYPE=google_cloud
-
-      # CKANEXT__ASSET_STORAGE__BACKEND_OPTIONS=${{ secrets.STORAGE_BACKEND_OPTIONS }}
 
       # - name: Testing Service with curl
       #   run: curl "${{ steps.deploy.outputs.url }}"
