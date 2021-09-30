@@ -22,12 +22,12 @@ ENV GIFTLESS_CONFIG_TRANSFER_ADAPTERS_BASIC_OPTIONS_STORAGE_OPTIONS_BUCKET_NAME 
 ENV GIFTLESS_CONFIG_TRANSFER_ADAPTERS_BASIC_OPTIONS_STORAGE_OPTIONS_ACCOUNT_KEY ${GOOGLE_CLOUD_CREDENTIALS}
 
 COPY giftless.yaml ${GIFTLESS_CONFIG_FILE}
+COPY google_credentials.json ${GOOGLE_CLOUD_CREDENTIALS}
 
 USER root
 
-RUN --mount=type=secret,id=credentials,target=/etc/google_credentials.json \
+RUN --mount=type=secret,id=credentials,required,target=/etc/google_credentials.json \
   cat /etc/google_credentials.json
-RUN  chown -R giftless /etc/google_credentials.json
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && apt-get install -y gettext-base \
