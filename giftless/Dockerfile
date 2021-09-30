@@ -26,15 +26,13 @@ COPY google_credentials.json ${GOOGLE_CLOUD_CREDENTIALS}
 
 USER root
 
-RUN --mount=type=secret,id=credentials,target=/etc/google_credentials.json \
-  cat /etc/google_credentials.json
-
 RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && apt-get install -y gettext-base \
     && apt-get clean \
     && apt -y autoremove
 
 RUN envsubst "${GCP_PROJECT} ${GCP_BUCKET_NAME} ${GOOGLE_CLOUD_CREDENTIALS} ${CKAN_SITE_URL}" < ${GIFTLESS_CONFIG_FILE}
+RUN cat ${GIFTLESS_CONFIG_FILE}
 
 USER giftless
 
