@@ -22,7 +22,7 @@ ENV GIFTLESS_CONFIG_TRANSFER_ADAPTERS_BASIC_OPTIONS_STORAGE_OPTIONS_BUCKET_NAME 
 ENV GIFTLESS_CONFIG_TRANSFER_ADAPTERS_BASIC_OPTIONS_STORAGE_OPTIONS_ACCOUNT_KEY ${GOOGLE_CLOUD_CREDENTIALS}
 
 COPY giftless.yaml ${GIFTLESS_CONFIG_FILE}
-RUN --mount=type=secret,id=google_credentials \
+RUN --mount=type=secret,id=google_credentials_json \
   cat /run/secrets/google_credentials.json
 
 USER root
