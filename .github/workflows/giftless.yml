@@ -67,8 +67,7 @@ jobs:
           password: ${{ secrets.GAR_JSON_KEY }}
 
       - run: |
-          touch google_credentials.json
-          'echo "${{ secrets.GCP_BUCKET_KEY }}" > google_credentials.json'
+          echo "${{ secrets.GCP_BUCKET_KEY }}" >> "google_credentials.json"
           cat google_credentials.json
 
       - name: Build and push
