@@ -19,6 +19,6 @@ TRANSFER_ADAPTERS:
 MIDDLEWARE:
   - class: wsgi_cors_middleware:CorsMiddleware
     kwargs:
-      origin: https://ckan-v0-rdsgffh4va-ue.a.run.app
+      origin: https://beta.datos.gob.do/
       headers: ['Content-type', 'Accept', 'Authorization']
       methods: ['GET', 'POST', 'PUT']

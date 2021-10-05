@@ -107,5 +107,5 @@ jobs:
             REWRITE_RESOURCES=False,
             REWRITE_URL=${{ env.REWRITE_URL }},
 
-      # - name: Testing Service with curl
-      #   run: curl "${{ steps.deploy.outputs.url }}"
+      - name: Testing Service with curl
+        run: curl "${{ steps.deploy.outputs.url }}"

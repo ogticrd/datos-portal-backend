@@ -103,5 +103,5 @@ jobs:
             --vpc-connector=projects/${{ secrets.GCP_PROJECT }}/locations/${{ secrets.GCP_REGION }}/connectors/${{ secrets.GCP_REGION }}
             --port=${{ env.PORT }}
 
-      # - name: Testing Service with curl
-      #   run: curl "${{ steps.deploy.outputs.url }}"
+      - name: Testing Service with curl
+        run: curl "${{ steps.deploy.outputs.url }}"

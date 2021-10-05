@@ -112,6 +112,3 @@ jobs:
             CKAN_SITE_URL=${{ env.CKAN_SITE_URL }},
             GCP_PROJECT=${{ secrets.GCP_PROJECT }},
             GCP_BUCKET_NAME=${{ secrets.GCP_BUCKET_NAME }}
-
-      # - name: Testing Service with curl
-      #   run: curl "${{ steps.deploy.outputs.url }}"
