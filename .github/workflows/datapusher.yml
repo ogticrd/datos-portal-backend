@@ -8,8 +8,8 @@ on:
     branches:
       - master
     paths:
-      - '**/datapusher/**'
-      - '.github/workflows/datapusher.yml'
+      - "**/datapusher/**"
+      - ".github/workflows/datapusher.yml"
 
 env:
   # Deployment variables
@@ -39,7 +39,7 @@ jobs:
         run: echo "::set-output name=version::${{ steps.get.outputs.result }}"
 
   build:
-    needs: ['versioning']
+    needs: ["versioning"]
     runs-on: ubuntu-latest
 
     steps:
@@ -58,7 +58,6 @@ jobs:
           path: |
             /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}-${{ env.SERVICE_NAME }}
-
 
       - name: Login to GAR
         uses: docker/login-action@v1
@@ -99,13 +98,13 @@ jobs:
             --vpc-connector=projects/${{ secrets.GCP_PROJECT }}/locations/${{ secrets.GCP_REGION }}/connectors/${{ secrets.GCP_REGION }}
             --port=${{ env.PORT }}
           env_vars: |
-            MAX_CONTENT_LENGTH=10485760,
-            CHUNK_SIZE=16384,
-            CHUNK_INSERT_ROWS=250,
-            DOWNLOAD_TIMEOUT=30,
-            SSL_VERIFY=True,
-            REWRITE_RESOURCES=False,
-            REWRITE_URL=${{ env.REWRITE_URL }},
+            DATAPUSHER_MAX_CONTENT_LENGTH=10485760,
+            DATAPUSHER_CHUNK_SIZE=16384,
+            DATAPUSHER_CHUNK_INSERT_ROWS=250,
+            DATAPUSHER_DOWNLOAD_TIMEOUT=30,
+            DATAPUSHER_SSL_VERIFY=True,
+            DATAPUSHER_REWRITE_RESOURCES=False,
+            DATAPUSHER_REWRITE_URL=${{ env.REWRITE_URL }},
 
       - name: Testing Service with curl
         run: curl "${{ steps.deploy.outputs.url }}"
